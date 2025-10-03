@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Szachowa Zgadula</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css"
+    />
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+      }
+      h1 {
+        text-align: center;
+        color: #4fc3f7;
+        margin-bottom: 10px;
+      }
+
+      .creator-info {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 15px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      }
+
+      .logo-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 10px;
+      }
+
+      .logo {
+        width: 60px;
+        height: 60px;
+        background: white;
+        border-radius: 12px;
+        padding: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      .creator-name {
+        font-size: 1.3em;
+        font-weight: 600;
+        margin-bottom: 5px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .creator-subtitle {
+        font-size: 0.9em;
+        opacity: 0.9;
+        font-weight: 300;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .settings {
+        background-color: #2d2d2d;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        border: 1px solid #404040;
+      }
+      .game-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      @media (min-width: 768px) {
+        .game-container {
+          flex-direction: row;
+        }
+      }
+      .chessboard-container {
+        flex: 1;
+        background-color: #2d2d2d;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        border: 1px solid #404040;
+      }
+      .game-info {
+        flex: 1;
+        background-color: #2d2d2d;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        border: 1px solid #404040;
+      }
+      #board {
+        margin: 0 auto;
+        border: 2px solid #8b4513;
+      }
+
+      /* Ensure chess pieces have transparent backgrounds */
+      .piece-417db {
+        background: transparent !important;
+        background-color: transparent !important;
+      }
+
+      /* Style for chess board squares */
+      .white-1e1d7 {
+        background-color: #f0d9b5 !important;
+      }
+
+      .black-3c85d {
+        background-color: #b58863 !important;
+      }
+
+      /* Ensure piece images display properly - handle both PNG and SVG */
+      .piece-417db img {
+        max-width: 100%;
+        max-height: 100%;
+        background: transparent !important;
+        filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3));
+      }
+
+      /* SVG specific styling */
+      .piece-417db svg {
+        background: transparent !important;
+        filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3));
+      }
+      .controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        justify-content: center;
+      }
+      button {
+        padding: 8px 16px;
+        background-color: #4fc3f7;
+        color: #1a1a1a;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        font-weight: 500;
+      }
+      button:hover {
+        background-color: #29b6f6;
+      }
+      button:disabled {
+        background-color: #555555;
+        color: #888888;
+        cursor: not-allowed;
+      }
+      #toggle-info-btn {
+        margin-bottom: 10px;
+        background-color: #4fc3f7;
+        font-size: 0.9em;
+        padding: 6px 12px;
+      }
+      #toggle-info-btn:hover {
+        background-color: #29b6f6;
+      }
+      .evaluation-panel {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #333333;
+        border-radius: 8px;
+        border-left: 4px solid #4fc3f7;
+      }
+      .timer {
+        font-size: 1.2em;
+        font-weight: bold;
+        text-align: center;
+        margin: 10px 0;
+        color: #ff6b6b;
+      }
+      .option-button {
+        display: block;
+        width: 100%;
+        margin-bottom: 8px;
+        text-align: left;
+        padding: 10px;
+        background-color: #404040;
+        border: 1px solid #555555;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #e0e0e0;
+        transition: background-color 0.2s;
+      }
+      .option-button:hover {
+        background-color: #505050;
+        border-color: #4fc3f7;
+      }
+      .score-display {
+        font-size: 1.2em;
+        font-weight: bold;
+        text-align: center;
+        margin: 15px 0;
+        color: #4caf50;
+      }
+      .move-list {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 10px;
+        background-color: #333333;
+        border-radius: 4px;
+        margin-top: 15px;
+        border: 1px solid #555555;
+      }
+      .current-move {
+        background-color: #4fc3f7;
+        color: #1a1a1a;
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-weight: 600;
+      }
+      input[type="file"],
+      input[type="range"] {
+        width: 100%;
+        margin-bottom: 15px;
+      }
+      input[type="text"] {
+        background-color: #404040;
+        border: 1px solid #555555;
+        color: #e0e0e0;
+        border-radius: 4px;
+        padding: 8px;
+      }
+      input[type="text"]:focus {
+        border-color: #4fc3f7;
+        outline: none;
+      }
+      input[type="checkbox"] {
+        accent-color: #4fc3f7;
+      }
+      label {
+        color: #e0e0e0;
+        font-weight: 500;
+      }
+      h3 {
+        color: #4fc3f7;
+      }
+      h4 {
+        color: #e0e0e0;
+      }
+      #pgn-status,
+      #txt-status,
+      #time-value,
+      #messages-status {
+        color: #b0b0b0;
+      }
+
+      /* Welcome Screen Animations */
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-20px);
+        }
+        60% {
+          transform: translateY(-10px);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .welcome-content {
+        animation: fadeIn 1s ease-out;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Welcome Screen -->
+    <div
+      id="welcome-screen"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        transition: opacity 0.5s ease-out;
+      "
+    >
+      <div
+        class="welcome-content"
+        style="
+          text-align: center;
+          background: rgba(255, 255, 255, 0.95);
+          padding: 40px;
+          border-radius: 20px;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+          max-width: 500px;
+          margin: 20px;
+        "
+      >
+        <!-- Logo/Title -->
+        <div
+          style="
+            background: #4fc3f7;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(79, 195, 247, 0.3);
+          "
+        >
+          <h1
+            style="
+              margin: 0;
+              font-size: 2.5em;
+              text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            "
+          >
+            🌍 Szachowa Zgadula ♟️
+          </h1>
+        </div>
+
+        <!-- Welcome Image/Icon -->
+        <div style="margin-bottom: 30px">
+          <div
+            style="
+              font-size: 4em;
+              margin-bottom: 15px;
+              animation: bounce 2s infinite;
+            "
+          >
+            👨‍🎓👩‍🎓🧒
+          </div>
+          <div style="font-size: 3em; margin-bottom: 15px">♔♕♖♗♘♙</div>
+        </div>
+
+        <!-- Description -->
+        <p
+          style="
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.6;
+          "
+        >
+          Witaj w <strong>Szachowej Zgaduli!</strong><br />
+          Sprawdź swoją wiedzę szachową analizując ruchy mistrzów!
+        </p>
+
+        <!-- Start Button -->
+        <button
+          id="start-app-btn"
+          style="
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+          "
+          onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 12px 20px rgba(76, 175, 80, 0.4)'"
+          onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 16px rgba(76, 175, 80, 0.3)'"
+        >
+          🚀 START 🚀
+        </button>
+
+        <!-- Version Info -->
+        <p
+          style="
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+          "
+        >
+          Wersja 2.0 • Wrzesień 2025
+        </p>
+      </div>
+    </div>
+
+    <!-- Main Application (initially hidden) -->
+    <div id="main-app" style="display: none">
+      <div class="container">
+        <h1>Szachowa Zgadula</h1>
+
+        <div class="creator-info">
+          <div class="logo-container">
+            <div class="logo">
+              <svg
+                width="44"
+                height="44"
+                viewBox="0 0 100 100"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <linearGradient
+                    id="logoGradient"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                  >
+                    <stop offset="0%" style="stop-color: #667eea" />
+                    <stop offset="100%" style="stop-color: #764ba2" />
+                  </linearGradient>
+                </defs>
+                <!-- Litera M -->
+                <path
+                  d="M15 75 L15 25 L25 25 L40 50 L55 25 L65 25 L65 75 L55 75 L55 40 L45 58 L35 58 L25 40 L25 75 Z"
+                  fill="url(#logoGradient)"
+                  stroke="none"
+                />
+                <!-- Symbol mądrości - żarówka -->
+                <circle
+                  cx="82"
+                  cy="30"
+                  r="12"
+                  fill="none"
+                  stroke="url(#logoGradient)"
+                  stroke-width="3"
+                />
+                <path
+                  d="M75 30 Q75 25 82 25 Q89 25 89 30"
+                  fill="none"
+                  stroke="url(#logoGradient)"
+                  stroke-width="2"
+                />
+                <rect
+                  x="79"
+                  y="38"
+                  width="6"
+                  height="8"
+                  fill="url(#logoGradient)"
+                  rx="1"
+                />
+                <path
+                  d="M76 42 L88 42 M77 45 L87 45"
+                  stroke="url(#logoGradient)"
+                  stroke-width="2"
+                />
+                <!-- Podstawa W -->
+                <path
+                  d="M15 85 L25 65 L35 80 L45 65 L55 85 L45 85 L40 75 L30 75 L25 85 Z"
+                  fill="url(#logoGradient)"
+                  stroke="none"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="creator-name">Fundacja "Więcej Mądrości"</div>
+              <div class="creator-subtitle">Edukacyjne gry szachowe</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings">
+          <button
+            id="toggle-settings-btn"
+            style="
+              background: #4fc3f7;
+              color: #1a1a1a;
+              border: none;
+              padding: 8px 12px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 0.9em;
+              margin-bottom: 15px;
+            "
+            title="Pokaż/Ukryj ustawienia gry"
+          >
+            ⚙️ Pokaż ustawienia
+          </button>
+          <div
+            id="settings-panel"
+            style="transition: all 0.3s ease; display: none"
+          >
+            <h2 style="margin: 0 0 15px 0">Ustawienia gry</h2>
+            <div id="file-loading-panel" style="transition: all 0.3s ease">
+              <div style="display: flex; gap: 20px; flex-wrap: wrap">
+                <div style="flex: 1; min-width: 300px">
+                  <label for="pgn-file">1. Wybierz plik PGN:</label>
+                  <input type="file" id="pgn-file" accept=".pgn" />
+                  <div
+                    id="pgn-status"
+                    style="color: #666; font-size: 0.9em; margin-top: 5px"
+                  >
+                    Nie wybrano pliku PGN
+                  </div>
+                </div>
+                <div style="flex: 1; min-width: 300px">
+                  <label for="txt-file"
+                    >2. Wybierz plik TXT z odpowiedziami:</label
+                  >
+                  <input type="file" id="txt-file" accept=".txt" />
+                  <div
+                    id="txt-status"
+                    style="color: #666; font-size: 0.9em; margin-top: 5px"
+                  >
+                    Nie wybrano pliku TXT
+                  </div>
+                </div>
+              </div>
+              <div
+                style="
+                  margin-top: 15px;
+                  padding: 10px;
+                  background-color: #2d4a5a;
+                  border-radius: 5px;
+                  border: 1px solid #4fc3f7;
+                "
+              >
+                <small style="color: #b3e5fc">
+                  <strong>Uwaga:</strong> Nazwa pliku TXT musi być identyczna z
+                  nazwą pliku PGN (tylko rozszerzenie .txt zamiast .pgn)
+                </small>
+              </div>
+            </div>
+            <div>
+              <label for="time-limit"
+                >Limit czasu na odpowiedź (1-60 sekund):</label
+              >
+              <input type="range" id="time-limit" min="1" max="60" value="10" />
+              <span id="time-value">10 sekund</span>
+            </div>
+            <div>
+              <label for="show-messages">Pokazuj komunikaty podczas gry:</label>
+              <input type="checkbox" id="show-messages" checked />
+              <span id="messages-status">Włączone</span>
+            </div>
+            <div class="controls">
+              <button id="start-btn" disabled>Rozpocznij grę</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Best Scores Panel -->
+        <div class="settings">
+          <!-- Player name field - always visible -->
+          <div
+            style="
+              margin-bottom: 15px;
+              padding: 10px;
+              background-color: #2d4a5a;
+              border-radius: 5px;
+              border: 1px solid #4fc3f7;
+            "
+          >
+            <label
+              for="player-name"
+              style="
+                display: block;
+                margin-bottom: 5px;
+                color: #4fc3f7;
+                font-weight: 500;
+              "
+              >👤 Imię gracza:</label
+            >
+            <input
+              type="text"
+              id="player-name"
+              placeholder="Wprowadź swoje imię..."
+              style="
+                width: 100%;
+                padding: 8px;
+                background-color: #3d3d3d;
+                color: #e0e0e0;
+                border: 1px solid #555;
+                border-radius: 4px;
+                font-size: 0.9em;
+                box-sizing: border-box;
+              "
+              maxlength="24"
+            />
+          </div>
+
+          <button
+            id="toggle-scores-btn"
+            style="
+              background: #4fc3f7;
+              color: #1a1a1a;
+              border: none;
+              padding: 8px 12px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 0.9em;
+              margin-bottom: 15px;
+            "
+            title="Pokaż/Ukryj najlepsze wyniki"
+          >
+            🏆 Najlepsze wyniki
+          </button>
+          <div
+            id="scores-panel"
+            style="transition: all 0.3s ease; display: none"
+          >
+            <h3 style="margin: 0 0 15px 0; color: #4fc3f7">
+              🏆 Ranking najlepszych wyników
+            </h3>
+            <div id="best-scores-list">
+              <p style="color: #b0b0b0; font-style: italic">
+                Brak zapisanych wyników
+              </p>
+            </div>
+            <div style="margin-top: 15px">
+              <button
+                id="export-scores-btn"
+                style="
+                  background: #4caf50;
+                  color: white;
+                  border: none;
+                  padding: 8px 16px;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  margin-right: 10px;
+                "
+              >
+                💾 Eksportuj do JSON
+              </button>
+              <button
+                id="clear-scores-btn"
+                style="
+                  background: #f44336;
+                  color: white;
+                  border: none;
+                  padding: 8px 16px;
+                  border-radius: 4px;
+                  cursor: pointer;
+                "
+              >
+                🗑️ Wyczyść wszystkie wyniki
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-container" style="display: none" id="game-area">
+          <div class="chessboard-container">
+            <div id="board" style="width: 400px"></div>
+            <div class="controls">
+              <button id="prev-btn">&lt; Pop.</button>
+              <button id="next-btn">Nast. &gt;</button>
+              <button id="reset-btn">Reset</button>
+            </div>
+          </div>
+
+          <div class="game-info">
+            <button id="toggle-info-btn" title="Pokaż/Ukryj informacje o grze">
+              📊 Pokaż/Ukryj Info
+            </button>
+            <div id="game-info-panel">
+              <h3>Informacje o grze</h3>
+              <div id="game-details">Nie załadowano gry</div>
+
+              <div class="move-list">
+                <h4>Ruchy:</h4>
+                <div id="moves-container"></div>
+              </div>
+            </div>
+
+            <div class="evaluation-panel">
+              <div class="score-display">Punkty: <span id="score">0</span></div>
+              <h3>Oceń ostatni ruch gracza</h3>
+              <div
+                style="
+                  text-align: center;
+                  margin: 10px 0;
+                  padding: 8px;
+                  background-color: #2d4a5a;
+                  border-radius: 4px;
+                  border-left: 4px solid #4fc3f7;
+                "
+              >
+                <strong>Oceniany ruch: </strong>
+                <span
+                  id="evaluated-move-info"
+                  style="color: #4fc3f7; font-weight: bold"
+                  >-</span
+                >
+              </div>
+              <div class="timer" id="timer">
+                Pozostały czas: <span id="time-left">10</span>s
+              </div>
+
+              <!-- DEBUG SECTION - REMOVE BEFORE PRODUCTION -->
+              <div
+                id="debug-section"
+                style="
+                  background-color: #4a3c00;
+                  border: 2px solid #ff9800;
+                  border-radius: 5px;
+                  padding: 10px;
+                  margin: 10px 0;
+                  text-align: center;
+                "
+              >
+                <strong style="color: #ffb74d">🐛 DEBUG MODE</strong><br />
+                <span style="color: #ffb74d">Oczekiwana odpowiedź: </span>
+                <span
+                  id="debug-expected-answer"
+                  style="color: #ff8a65; font-weight: bold"
+                  >-</span
+                >
+              </div>
+              <!-- END DEBUG SECTION -->
+
+              <div id="evaluation-options">
+                <button class="option-button" data-value="attack">
+                  Atak 2p
+                </button>
+                <button class="option-button" data-value="defense">
+                  Obrona 1p
+                </button>
+                <button class="option-button" data-value="strategic">
+                  Manewr strategiczny 1p + określony (+2p)
+                </button>
+                <button class="option-button" data-value="tactical">
+                  Manewr taktyczny 1p + określony (+2p)
+                </button>
+                <button class="option-button" data-value="dontknow">
+                  Nie wiem 0p
+                </button>
+                <button class="option-button" data-value="nonsense">
+                  Bez sensu 1p
+                </button>
+                <button class="option-button" data-value="mistake">
+                  Błąd 3p + określony (+2p)
+                </button>
+              </div>
+              <div id="detail-input" style="display: none; margin-top: 15px">
+                <input
+                  type="text"
+                  id="detail-text"
+                  placeholder="Opisz manewr/błąd..."
+                />
+                <button id="submit-detail">Zatwierdź</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+      <script>
+        // Zmienne stanu gry
+        let game = new Chess();
+        let pgnText = "";
+        let txtContent = "";
+        let selectedPgnFile = null;
+        let selectedTxtFile = null;
+        let currentPGNFileName = "";
+        let currentMoveIndex = 0;
+        let moves = [];
+        let score = 0;
+        let timeLimit = 10;
+        let showMessages = true;
+        let timerInterval = null;
+        let timeLeft = 0;
+        let answerKey = {};
+        let selectedOption = "";
+        let gameActive = false;
+
+        // Inicjalizacja szachownicy
+        const board = Chessboard("board", {
+          position: "start",
+          draggable: true,
+          dropOffBoard: "snapback",
+          orientation: "white",
+          pieceTheme: function (piece) {
+            // Use Lichess pieces which have clean transparent backgrounds
+            const lichessBaseUrl =
+              "https://lichess1.org/assets/_P5OUOq/piece/cburnett/";
+            const pieceMap = {
+              bB: "bB.svg",
+              bK: "bK.svg",
+              bN: "bN.svg",
+              bP: "bP.svg",
+              bQ: "bQ.svg",
+              bR: "bR.svg",
+              wB: "wB.svg",
+              wK: "wK.svg",
+              wN: "wN.svg",
+              wP: "wP.svg",
+              wQ: "wQ.svg",
+              wR: "wR.svg",
+            };
+            return lichessBaseUrl + (pieceMap[piece] || piece + ".svg");
+          },
+        });
+
+        // Elementy DOM
+        const pgnFileInput = document.getElementById("pgn-file");
+        const txtFileInput = document.getElementById("txt-file");
+        const pgnStatus = document.getElementById("pgn-status");
+        const txtStatus = document.getElementById("txt-status");
+        const fileLoadingPanel = document.getElementById("file-loading-panel");
+        const settingsPanel = document.getElementById("settings-panel");
+        const toggleSettingsBtn = document.getElementById(
+          "toggle-settings-btn"
+        );
+        const gameInfoPanel = document.getElementById("game-info-panel");
+        const toggleInfoBtn = document.getElementById("toggle-info-btn");
+        const timeLimitInput = document.getElementById("time-limit");
+        const timeValueSpan = document.getElementById("time-value");
+        const showMessagesInput = document.getElementById("show-messages");
+        const messagesStatusSpan = document.getElementById("messages-status");
+        const playerNameInput = document.getElementById("player-name");
+        const startBtn = document.getElementById("start-btn");
+        const gameArea = document.getElementById("game-area");
+        const gameDetails = document.getElementById("game-details");
+        const movesContainer = document.getElementById("moves-container");
+        const prevBtn = document.getElementById("prev-btn");
+        const nextBtn = document.getElementById("next-btn");
+        const resetBtn = document.getElementById("reset-btn");
+        const scoreDisplay = document.getElementById("score");
+        const timerDisplay = document.getElementById("time-left");
+        const evaluatedMoveInfo = document.getElementById(
+          "evaluated-move-info"
+        );
+        const evaluationOptions = document.getElementById("evaluation-options");
+        const detailInput = document.getElementById("detail-input");
+        const detailText = document.getElementById("detail-text");
+        const submitDetailBtn = document.getElementById("submit-detail");
+
+        // DEBUG ELEMENTS - REMOVE BEFORE PRODUCTION
+        const debugExpectedAnswer = document.getElementById(
+          "debug-expected-answer"
+        );
+        // END DEBUG ELEMENTS
+
+        // Best Scores elements
+        const toggleScoresBtn = document.getElementById("toggle-scores-btn");
+        const scoresPanel = document.getElementById("scores-panel");
+        const bestScoresList = document.getElementById("best-scores-list");
+        const exportScoresBtn = document.getElementById("export-scores-btn");
+        const clearScoresBtn = document.getElementById("clear-scores-btn");
+
+        // Best Scores Management
+        let bestScores = [];
+        const MAX_SCORES = 10; // Maximum number of scores to keep
+
+        // Load best scores from localStorage
+        function loadBestScores() {
+          try {
+            const saved = localStorage.getItem("chessAnalyzerBestScores");
+            if (saved) {
+              bestScores = JSON.parse(saved);
+            }
+          } catch (error) {
+            console.error("Error loading best scores:", error);
+            bestScores = [];
+          }
+          displayBestScores();
+        }
+
+        // Save best scores to localStorage
+        function saveBestScores() {
+          try {
+            localStorage.setItem(
+              "chessAnalyzerBestScores",
+              JSON.stringify(bestScores)
+            );
+          } catch (error) {
+            console.error("Error saving best scores:", error);
+          }
+        }
+
+        // Add new score to best scores
+        function addBestScore(score, gameInfo) {
+          const timestamp = new Date().toLocaleString("pl-PL");
+          const playerName = playerNameInput.value.trim() || "Nieznany gracz";
+          const scoreEntry = {
+            score: score,
+            date: timestamp,
+            gameInfo: gameInfo || "Nieznana gra",
+            playerName: playerName,
+          };
+
+          bestScores.push(scoreEntry);
+          bestScores.sort((a, b) => b.score - a.score); // Sort by score descending
+          bestScores = bestScores.slice(0, MAX_SCORES); // Keep only top scores
+
+          saveBestScores();
+          displayBestScores();
+
+          // Check if it's a new record
+          if (bestScores[0] && bestScores[0].score === score) {
+            setTimeout(() => {
+              showMessage(
+                `🎉 Nowy rekord! Twój wynik ${score} punktów jest najlepszy!`
+              );
+            }, 1000);
+          }
+        }
+
+        // Display best scores
+        function displayBestScores() {
+          if (bestScores.length === 0) {
+            bestScoresList.innerHTML =
+              '<p style="color: #b0b0b0; font-style: italic;">Brak zapisanych wyników</p>';
+            return;
+          }
+
+          let html = '<div style="color: #e0e0e0;">';
+          bestScores.forEach((entry, index) => {
+            const medal =
+              index === 0
+                ? "🥇"
+                : index === 1
+                ? "🥈"
+                : index === 2
+                ? "🥉"
+                : `${index + 1}.`;
+            html += `
+            <div style="margin-bottom: 10px; padding: 8px; background-color: ${
+              index < 3 ? "#3d4a5a" : "#2a2a2a"
+            }; border-radius: 4px; border-left: 3px solid ${
+              index === 0
+                ? "#ffd700"
+                : index === 1
+                ? "#c0c0c0"
+                : index === 2
+                ? "#cd7f32"
+                : "#4fc3f7"
+            };">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: bold; color: ${
+                  index === 0 ? "#ffd700" : "#4fc3f7"
+                };">${medal} ${entry.score} pkt</span>
+                <span style="font-size: 0.8em; color: #b0b0b0;">${
+                  entry.date
+                }</span>
+              </div>
+              <div style="font-size: 0.9em; color: #b0b0b0; margin-top: 4px;">
+                ${entry.gameInfo} - ${entry.playerName || "Nieznany gracz"}
+              </div>
+            </div>
+          `;
+          });
+          html += "</div>";
+          bestScoresList.innerHTML = html;
+        }
+
+        // Clear all best scores
+        function clearBestScores() {
+          const password = prompt(
+            "Wprowadź hasło aby usunąć wszystkie wyniki:"
+          );
+          if (password === "gra1") {
+            bestScores = [];
+            saveBestScores();
+            displayBestScores();
+            alert("Wszystkie wyniki zostały usunięte.");
+          } else if (password !== null) {
+            alert("Nieprawidłowe hasło!");
+          }
+        }
+
+        // Export best scores to JSON file
+        function exportBestScores() {
+          if (bestScores.length === 0) {
+            alert("Brak wyników do eksportu!");
+            return;
+          }
+
+          try {
+            // Create export data with metadata
+            const exportData = {
+              exportDate: new Date().toLocaleString("pl-PL"),
+              version: "1.0",
+              application: "Szachowa Zgadula",
+              totalScores: bestScores.length,
+              scores: bestScores,
+            };
+
+            // Convert to JSON with nice formatting
+            const jsonString = JSON.stringify(exportData, null, 2);
+
+            // Create blob and download link
+            const blob = new Blob([jsonString], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+
+            // Create temporary download link
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `chess-analyzer-scores-${new Date()
+              .toISOString()
+              .slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+
+            // Cleanup
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showMessage(
+              `Wyniki zostały wyeksportowane do pliku: ${a.download}`
+            );
+          } catch (error) {
+            console.error("Error exporting scores:", error);
+            alert("Błąd podczas eksportu wyników!");
+          }
+        }
+
+        // Toggle scores panel visibility
+        function toggleScoresPanel() {
+          const isHidden = scoresPanel.style.display === "none";
+          scoresPanel.style.display = isHidden ? "block" : "none";
+          toggleScoresBtn.textContent = isHidden
+            ? "🏆 Ukryj wyniki"
+            : "🏆 Najlepsze wyniki";
+        }
+
+        // Load and save player name
+        function loadPlayerName() {
+          try {
+            const savedName = localStorage.getItem("chessAnalyzerPlayerName");
+            if (savedName) {
+              playerNameInput.value = savedName;
+            }
+          } catch (error) {
+            console.error("Error loading player name:", error);
+          }
+        }
+
+        function savePlayerName() {
+          try {
+            const playerName = playerNameInput.value.trim();
+            if (playerName) {
+              localStorage.setItem("chessAnalyzerPlayerName", playerName);
+            }
+          } catch (error) {
+            console.error("Error saving player name:", error);
+          }
+        }
+
+        // Helper function to show messages only when showMessages is enabled
+        function showMessage(message) {
+          if (showMessages) {
+            alert(message);
+          }
+        }
+
+        // Obsługa zdarzeń
+        pgnFileInput.addEventListener("change", handlePGNFileUpload);
+        txtFileInput.addEventListener("change", handleTXTFileUpload);
+        toggleSettingsBtn.addEventListener("click", toggleSettingsPanel);
+        toggleInfoBtn.addEventListener("click", toggleGameInfoPanel);
+        toggleScoresBtn.addEventListener("click", toggleScoresPanel);
+        exportScoresBtn.addEventListener("click", exportBestScores);
+        clearScoresBtn.addEventListener("click", clearBestScores);
+        timeLimitInput.addEventListener("input", updateTimeLimit);
+        showMessagesInput.addEventListener("change", updateMessagesSettings);
+        startBtn.addEventListener("click", startGame);
+        prevBtn.addEventListener("click", goToPreviousMove);
+        nextBtn.addEventListener("click", goToNextMove);
+        resetBtn.addEventListener("click", resetGame);
+
+        // Obsługa opcji oceny
+        document.querySelectorAll(".option-button").forEach((button) => {
+          button.addEventListener("click", function () {
+            if (!gameActive) return;
+
+            const option = this.getAttribute("data-value");
+            selectOption(option);
+          });
+        });
+
+        submitDetailBtn.addEventListener("click", submitDetailedAnswer);
+
+        // Player name saving
+        playerNameInput.addEventListener("blur", savePlayerName);
+        playerNameInput.addEventListener("input", function () {
+          // Auto-save as user types (with debouncing)
+          clearTimeout(playerNameInput.saveTimeout);
+          playerNameInput.saveTimeout = setTimeout(savePlayerName, 500);
+        });
+
+        // Add keyboard support
+        detailText.addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            submitDetailedAnswer();
+          }
+        });
+
+        // Add keyboard shortcuts for navigation
+        document.addEventListener("keydown", function (e) {
+          if (!gameActive && gameArea.style.display !== "none") {
+            switch (e.key) {
+              case "ArrowLeft":
+                e.preventDefault();
+                goToPreviousMove();
+                break;
+              case "ArrowRight":
+                e.preventDefault();
+                goToNextMove();
+                break;
+              case "Home":
+                e.preventDefault();
+                resetGame();
+                break;
+            }
+          }
+        });
+
+        // Cleanup on page unload to prevent memory leaks
+        window.addEventListener("beforeunload", function () {
+          stopTimer();
+        });
+
+        // Add file validation
+        function validatePGNFile(file) {
+          // Check file size (max 1MB)
+          if (file.size > 1024 * 1024) {
+            alert("Plik PGN jest zbyt duży. Maksymalny rozmiar to 1MB.");
+            return false;
+          }
+
+          // Check file extension - only PGN files for this validation
+          const fileName = file.name.toLowerCase();
+
+          if (!fileName.endsWith(".pgn")) {
+            alert(
+              "Nieprawidłowy format pliku głównego. Wymagany jest plik .pgn"
+            );
+            return false;
+          }
+
+          return true;
+        }
+
+        // Funkcje
+        function handlePGNFileUpload(event) {
+          const file = event.target.files[0];
+          if (!file) {
+            selectedPgnFile = null;
+            pgnText = "";
+            updatePGNStatus("Nie wybrano pliku PGN");
+            checkIfReady();
+            return;
+          }
+
+          // Validate PGN file
+          if (!validatePGNFile(file)) {
+            event.target.value = "";
+            selectedPgnFile = null;
+            pgnText = "";
+            updatePGNStatus("Nieprawidłowy plik PGN");
+            checkIfReady();
+            return;
+          }
+
+          selectedPgnFile = file;
+          currentPGNFileName = file.name;
+          updatePGNStatus("Ładowanie pliku PGN...");
+
+          // Load PGN file content
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            pgnText = e.target.result;
+            updatePGNStatus(`Załadowano: ${file.name}`);
+            checkIfReady();
+          };
+          reader.onerror = function () {
+            updatePGNStatus("Błąd podczas ładowania pliku PGN");
+            selectedPgnFile = null;
+            currentPGNFileName = "";
+            pgnText = "";
+            checkIfReady();
+          };
+          reader.readAsText(file);
+        }
+
+        function handleTXTFileUpload(event) {
+          const file = event.target.files[0];
+          if (!file) {
+            selectedTxtFile = null;
+            txtContent = "";
+            updateTXTStatus("Nie wybrano pliku TXT");
+            checkIfReady();
+            return;
+          }
+
+          selectedTxtFile = file;
+          updateTXTStatus("Ładowanie pliku TXT...");
+
+          // Load TXT file content
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            txtContent = e.target.result;
+            processAnswerFile(txtContent);
+            updateTXTStatus(`Załadowano: ${file.name}`);
+            checkIfReady();
+          };
+          reader.onerror = function () {
+            updateTXTStatus("Błąd podczas ładowania pliku TXT");
+            selectedTxtFile = null;
+            txtContent = "";
+            checkIfReady();
+          };
+          reader.readAsText(file);
+        }
+
+        function updatePGNStatus(message) {
+          pgnStatus.textContent = message;
+          pgnStatus.style.color = message.includes("Załadowano")
+            ? "#27ae60"
+            : message.includes("Błąd") || message.includes("Nieprawidłowy")
+            ? "#e74c3c"
+            : "#666";
+        }
+
+        function updateTXTStatus(message) {
+          txtStatus.textContent = message;
+          txtStatus.style.color = message.includes("Załadowano")
+            ? "#27ae60"
+            : message.includes("Błąd")
+            ? "#e74c3c"
+            : "#666";
+        }
+
+        function checkIfReady() {
+          const pgnReady = selectedPgnFile && pgnText;
+          const txtReady = selectedTxtFile && txtContent;
+
+          if (pgnReady && txtReady) {
+            // Check if filenames match
+            const pgnName = selectedPgnFile.name.replace(/\.pgn$/i, "");
+            const txtName = selectedTxtFile.name.replace(/\.txt$/i, "");
+
+            if (pgnName === txtName) {
+              enableStartButton();
+            } else {
+              disableStartButton(
+                `Nazwy plików nie pasują!\nPGN: ${pgnName}\nTXT: ${txtName}`
+              );
+            }
+          } else {
+            disableStartButton("Wybierz oba pliki aby rozpocząć grę");
+          }
+        }
+
+        function enableStartButton() {
+          console.log("Enabling start button...");
+          startBtn.disabled = false;
+          startBtn.style.backgroundColor = "#27ae60";
+          startBtn.textContent = "Rozpocznij grę ✓";
+        }
+
+        function disableStartButton(reason) {
+          startBtn.disabled = true;
+          startBtn.style.backgroundColor = "#95a5a6";
+          startBtn.textContent = "Rozpocznij grę";
+          if (reason && reason !== "Wybierz oba pliki aby rozpocząć grę") {
+            console.log("Start button disabled:", reason);
+          }
+        }
+
+        function toggleSettingsPanel() {
+          const isHidden = settingsPanel.style.display === "none";
+
+          if (isHidden) {
+            // Show the panel
+            settingsPanel.style.display = "block";
+            toggleSettingsBtn.innerHTML = "⚙️ Ukryj ustawienia";
+            toggleSettingsBtn.style.backgroundColor = "#ff6b6b";
+          } else {
+            // Hide the panel
+            settingsPanel.style.display = "none";
+            toggleSettingsBtn.innerHTML = "⚙️ Pokaż ustawienia";
+            toggleSettingsBtn.style.backgroundColor = "#4fc3f7";
+          }
+        }
+
+        function hideSettingsPanelAfterStart() {
+          settingsPanel.style.display = "none";
+          toggleSettingsBtn.innerHTML = "⚙️ Pokaż ustawienia";
+          toggleSettingsBtn.style.backgroundColor = "#4fc3f7";
+        }
+
+        function toggleGameInfoPanel() {
+          const isHidden = gameInfoPanel.style.display === "none";
+
+          if (isHidden) {
+            // Show the panel
+            gameInfoPanel.style.display = "block";
+            toggleInfoBtn.innerHTML = "📊 Ukryj Info";
+            toggleInfoBtn.style.backgroundColor = "#e74c3c";
+          } else {
+            // Hide the panel
+            gameInfoPanel.style.display = "none";
+            toggleInfoBtn.innerHTML = "📊 Pokaż Info";
+            toggleInfoBtn.style.backgroundColor = "#3498db";
+          }
+        }
+
+        function hideGameInfoAfterStart() {
+          gameInfoPanel.style.display = "none";
+          toggleInfoBtn.innerHTML = "📊 Pokaż Info";
+          toggleInfoBtn.style.backgroundColor = "#3498db";
+        }
+
+        function processAnswerFile(txtContent) {
+          // Parse the TXT file content with PGN-like structure
+          answerKey = {};
+
+          if (!txtContent.trim()) {
+            console.warn("Plik TXT jest pusty");
+            return;
+          }
+
+          try {
+            // Map evaluation codes to full names
+            const evaluationMap = {
+              a: "attack",
+              d: "defense",
+              s: "strategic",
+              t: "tactical",
+              n: "nonsense", // Reverted back to "nonsense"
+              m: "mistake",
+            };
+
+            // Split content into lines and filter out empty lines and tags
+            const lines = txtContent.split("\n");
+            let gameContent = "";
+
+            // Skip header lines with tags [Tag "Value"] and collect game content
+            for (const line of lines) {
+              const trimmedLine = line.trim();
+              // Skip empty lines and tag lines (lines starting with [)
+              if (trimmedLine && !trimmedLine.startsWith("[")) {
+                gameContent += trimmedLine + " ";
+              }
+            }
+
+            console.log("Game content extracted:", gameContent);
+
+            // Parse the move notation similar to PGN
+            // Example: "1. s d 2. n d 3. s s" means move 1: white=strategic, black=defense, etc.
+            const tokens = gameContent.trim().split(/\s+/);
+            let currentMoveNumber = 0;
+            let whiteMove = true; // true for white's move, false for black's move
+
+            for (let i = 0; i < tokens.length; i++) {
+              const token = tokens[i];
+
+              // Check if token is a move number (ends with .)
+              if (token.endsWith(".")) {
+                currentMoveNumber = parseInt(token.replace(".", ""));
+                whiteMove = true; // Reset to white's move
+                continue;
+              }
+
+              // Check if token contains evaluation codes (can be comma-separated)
+              const evaluationCode = token.toLowerCase();
+              // Check if it's a single code or comma-separated codes
+              if (evaluationCode.includes(",")) {
+                // Handle multiple evaluation codes separated by commas
+                const codes = evaluationCode
+                  .split(",")
+                  .map((code) => code.trim());
+                const validCodes = codes.filter((code) =>
+                  evaluationMap.hasOwnProperty(code)
+                );
+
+                if (validCodes.length > 0) {
+                  // Calculate the actual move index (white moves are odd, black moves are even)
+                  const moveIndex = whiteMove
+                    ? (currentMoveNumber - 1) * 2 + 1 // White move
+                    : (currentMoveNumber - 1) * 2 + 2; // Black move
+
+                  // Store all valid evaluation codes as an array
+                  answerKey[moveIndex] = validCodes.map(
+                    (code) => evaluationMap[code]
+                  );
+
+                  console.log(
+                    `Move ${moveIndex} (${
+                      whiteMove ? "White" : "Black"
+                    } move ${currentMoveNumber}): ${validCodes
+                      .map((code) => evaluationMap[code])
+                      .join(", ")}`
+                  );
+
+                  whiteMove = !whiteMove; // Switch to the other player
+                }
+              } else if (evaluationMap.hasOwnProperty(evaluationCode)) {
+                // Handle single evaluation code
+                // Calculate the actual move index (white moves are odd, black moves are even)
+                const moveIndex = whiteMove
+                  ? (currentMoveNumber - 1) * 2 + 1 // White move
+                  : (currentMoveNumber - 1) * 2 + 2; // Black move
+
+                // Store single evaluation code as an array for consistency
+                answerKey[moveIndex] = [evaluationMap[evaluationCode]];
+
+                console.log(
+                  `Move ${moveIndex} (${
+                    whiteMove ? "White" : "Black"
+                  } move ${currentMoveNumber}): ${
+                    evaluationMap[evaluationCode]
+                  }`
+                );
+
+                whiteMove = !whiteMove; // Switch to the other player
+              }
+            }
+
+            console.log("Załadowano klucz odpowiedzi:", answerKey);
+            alert(
+              `Załadowano plik odpowiedzi z ${
+                Object.keys(answerKey).length
+              } ruchami z ocenami.`
+            );
+          } catch (error) {
+            console.error("Błąd podczas parsowania pliku TXT:", error);
+            alert("Błąd podczas parsowania pliku odpowiedzi: " + error.message);
+          }
+        }
+
+        function updateTimeLimit() {
+          timeLimit = parseInt(timeLimitInput.value);
+          timeValueSpan.textContent = `${timeLimit} sekund`;
+        }
+
+        function updateMessagesSettings() {
+          showMessages = showMessagesInput.checked;
+          messagesStatusSpan.textContent = showMessages
+            ? "Włączone"
+            : "Wyłączone";
+        }
+
+        function startGame() {
+          console.log("startGame called");
+          console.log(
+            "pgnText:",
+            pgnText ? "exists (" + pgnText.length + " chars)" : "NOT SET"
+          );
+
+          if (!pgnText) {
+            alert(
+              "Błąd: Dane PGN nie zostały załadowane. Spróbuj ponownie załadować pliki."
+            );
+            return;
+          }
+
+          // Parsowanie PGN
+          try {
+            // Reset game first
+            game.reset();
+
+            // Validate PGN format
+            if (!pgnText.trim()) {
+              throw new Error("Plik PGN jest pusty");
+            }
+
+            game.load_pgn(pgnText);
+            moves = game.history();
+
+            if (moves.length === 0) {
+              throw new Error("Plik PGN nie zawiera żadnych ruchów");
+            }
+
+            currentMoveIndex = 0;
+            score = 0;
+
+            // Wyświetlanie informacji o grze
+            const header = game.header();
+            let detailsHtml = `<strong>${header.White || "Biały"} vs ${
+              header.Black || "Czarny"
+            }</strong><br>`;
+            if (header.Result) detailsHtml += `Wynik: ${header.Result}<br>`;
+            if (header.Event) detailsHtml += `Wydarzenie: ${header.Event}<br>`;
+            if (header.Date) detailsHtml += `Data: ${header.Date}<br>`;
+            gameDetails.innerHTML = detailsHtml;
+
+            // Wyświetlanie ruchów
+            updateMovesDisplay();
+
+            // Pokazanie obszaru gry
+            gameArea.style.display = "flex";
+
+            // Ukryj panele ustawień dla czystszego interfejsu
+            hideSettingsPanelAfterStart();
+
+            // Ukryj informacje o grze i listę ruchów dla czystszego interfejsu
+            hideGameInfoAfterStart();
+
+            // Resetowanie szachownicy
+            game.reset();
+            board.position(game.fen());
+
+            // Rozpoczęcie gry
+            gameActive = true;
+            scoreDisplay.textContent = score;
+
+            // Przejdź do pierwszego ruchu
+            goToNextMove();
+          } catch (e) {
+            console.error("PGN parsing error:", e);
+            alert(
+              `Błąd podczas parsowania pliku PGN:\n${e.message}\n\nSprawdź czy plik jest poprawnym formatem PGN.`
+            );
+            return;
+          }
+        }
+
+        function updateMovesDisplay() {
+          let movesHtml = "";
+          for (let i = 0; i < moves.length; i++) {
+            const moveNumber = Math.floor(i / 2) + 1;
+            const isWhiteMove = i % 2 === 0;
+
+            if (isWhiteMove) {
+              movesHtml += `<div>${moveNumber}. <span class="${
+                i === currentMoveIndex ? "current-move" : ""
+              }">${moves[i]}</span>`;
+            } else {
+              movesHtml += ` <span class="${
+                i === currentMoveIndex ? "current-move" : ""
+              }">${moves[i]}</span></div>`;
+            }
+          }
+          movesContainer.innerHTML = movesHtml;
+        }
+
+        function goToPreviousMove() {
+          if (currentMoveIndex <= 0) return;
+
+          stopTimer();
+          gameActive = false;
+
+          currentMoveIndex--;
+          game.undo();
+          board.position(game.fen());
+          updateMovesDisplay();
+        }
+
+        function goToNextMove() {
+          if (currentMoveIndex >= moves.length) {
+            endGame();
+            return;
+          }
+
+          // Wykonaj następny ruch
+          game.move(moves[currentMoveIndex]);
+          board.position(game.fen());
+          currentMoveIndex++;
+          updateMovesDisplay();
+
+          // Start timer for evaluation if there are more moves and we're not at the end
+          if (currentMoveIndex < moves.length) {
+            startTimer();
+          } else {
+            gameActive = false;
+            // If we've reached the end, show final score
+            setTimeout(() => {
+              endGame();
+            }, 500);
+          }
+        }
+
+        function resetGame() {
+          stopTimer();
+          game.reset();
+          board.position(game.fen());
+          currentMoveIndex = 0;
+          score = 0;
+          scoreDisplay.textContent = score;
+          gameActive = false;
+          updateMovesDisplay();
+        }
+
+        function endGame() {
+          gameActive = false;
+
+          // Get game info for best scores
+          let gameInfo = "Nieznana gra";
+          if (currentPGNFileName) {
+            gameInfo = currentPGNFileName.replace(".pgn", "");
+          }
+
+          showMessage(`Koniec gry! Twój końcowy wynik: ${score} punktów.`);
+
+          // Add score to best scores if it's greater than 0
+          if (score > 0) {
+            addBestScore(score, gameInfo);
+          }
+        }
+
+        function startTimer() {
+          // Prevent starting timer if one is already running
+          if (timerInterval) {
+            stopTimer();
+          }
+
+          gameActive = true;
+
+          // Update move evaluation info
+          updateMoveEvaluationInfo();
+
+          // DEBUG: Show expected answer - REMOVE BEFORE PRODUCTION
+          updateDebugDisplay();
+          // END DEBUG
+
+          timeLeft = timeLimit;
+          timerDisplay.textContent = timeLeft;
+
+          timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+              stopTimer();
+              handleTimeout();
+            }
+          }, 1000);
+        }
+
+        function stopTimer() {
+          if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+          }
+          gameActive = false;
+        }
+
+        function handleTimeout() {
+          gameActive = false;
+          showMessage("Czas minął! Nie otrzymujesz punktów za ten ruch.");
+          // Automatically go to next move after timeout, adjust delay based on whether message is shown
+          const delay = showMessages ? 1500 : 100;
+          setTimeout(() => {
+            if (currentMoveIndex < moves.length) {
+              goToNextMove();
+            }
+          }, delay);
+        }
+
+        function selectOption(option) {
+          selectedOption = option;
+
+          // Jeśli opcja wymaga dodatkowych szczegółów, pokaż pole wprowadzania
+          if (
+            option === "strategic" ||
+            option === "tactical" ||
+            option === "mistake"
+          ) {
+            detailInput.style.display = "block";
+          } else {
+            // W przeciwnym razie natychmiast przetwarzaj odpowiedź
+            processAnswer(option);
+          }
+        }
+
+        function submitDetailedAnswer() {
+          const detail = detailText.value.trim();
+          if (detail === "" || detail.length < 3) {
+            alert("Proszę opisać manewr/błąd (minimum 3 znaki)");
+            detailText.focus();
+            return;
+          }
+
+          processAnswer(selectedOption, detail);
+          detailInput.style.display = "none";
+          detailText.value = "";
+        }
+
+        function processAnswer(option, detail = "") {
+          stopTimer();
+          gameActive = false;
+
+          // Obliczanie punktów
+          let points = 0;
+          // Use currentMoveIndex directly - it represents the move that was just played and we're evaluating
+          let moveNumber = currentMoveIndex;
+
+          switch (option) {
+            case "attack":
+              points = 2;
+              break;
+            case "defense":
+              points = 1;
+              break;
+            case "strategic":
+              points = 1;
+              break;
+            case "tactical":
+              points = 1;
+              break;
+            case "dontknow":
+              points = 0;
+              break;
+            case "nonsense":
+              points = 1;
+              break;
+            case "mistake":
+              points = 3;
+              break;
+          }
+
+          // Sprawdź poprawność odpowiedzi względem klucza (jeśli dostępny)
+          let isAnswerKeyAvailable = Object.keys(answerKey).length > 0;
+          let isCorrect = true; // Default to correct if no answer key
+          let shouldAwardPoints = true; // Default to awarding points
+
+          if (isAnswerKeyAvailable) {
+            // If answer key exists, only award points if there's an expected answer for this move
+            if (answerKey[moveNumber]) {
+              const expectedAnswers = Array.isArray(answerKey[moveNumber])
+                ? answerKey[moveNumber]
+                : [answerKey[moveNumber]]; // Ensure it's always an array
+
+              // Mapowanie odpowiedzi użytkownika na klucz
+              const optionMapping = {
+                attack: "attack",
+                defense: "defense",
+                strategic: "strategic",
+                tactical: "tactical",
+                mistake: "mistake",
+                dontknow: "nonsense", // "dontknow" maps to "nonsense"
+                nonsense: "nonsense", // "nonsense" maps to "nonsense"
+              };
+
+              const userAnswer = optionMapping[option];
+              isCorrect = expectedAnswers.includes(userAnswer);
+
+              if (!isCorrect) {
+                // Wrong answer - no points awarded
+                shouldAwardPoints = false;
+                points = 0;
+                const expectedDescriptions = expectedAnswers
+                  .map((answer) => getAnswerDescription(answer))
+                  .join(", ");
+                showMessage(
+                  `Odpowiedź niezgodna z kluczem. Oczekiwano: ${expectedDescriptions}\nNie otrzymujesz punktów.`
+                );
+              }
+            } else {
+              // No expected answer for this move - don't award points
+              shouldAwardPoints = false;
+              points = 0;
+              showMessage(
+                `Brak oczekiwanej odpowiedzi dla tego ruchu w pliku TXT.\nNie otrzymujesz punktów.`
+              );
+            }
+          }
+
+          // Aktualizacja wyniku - only if points should be awarded
+          if (shouldAwardPoints) {
+            score += points;
+          }
+          scoreDisplay.textContent = score;
+
+          // Komunikat o zdobytych punktach - only if points were awarded and > 0
+          if (shouldAwardPoints && points > 0) {
+            showMessage(
+              `Zdobyto ${points} punktów za: ${getOptionDescription(option)}${
+                detail ? " (" + detail + ")" : ""
+              }`
+            );
+          }
+
+          // Przejdź do następnego ruchu po krótkim opóźnieniu - adjust delay based on message display
+          const delay = showMessages ? 1000 : 100;
+          setTimeout(() => {
+            if (currentMoveIndex < moves.length) {
+              goToNextMove();
+            } else {
+              endGame();
+            }
+          }, delay);
+        }
+
+        function getOptionDescription(option) {
+          const descriptions = {
+            attack: "Atak",
+            defense: "Obrona",
+            strategic: "Manewr strategiczny",
+            tactical: "Manewr taktyczny",
+            dontknow: "Nie wiem",
+            nonsense: "Bez sensu",
+            mistake: "Błąd",
+          };
+          return descriptions[option] || option;
+        }
+
+        function getAnswerDescription(code) {
+          const descriptions = {
+            // Old single-letter codes (for backward compatibility)
+            a: "Atak",
+            d: "Obrona",
+            s: "Manewr strategiczny",
+            t: "Manewr taktyczny",
+            n: "Bez sensu",
+            m: "Błąd",
+            // New full names
+            attack: "Atak",
+            defense: "Obrona",
+            strategic: "Manewr strategiczny",
+            tactical: "Manewr taktyczny",
+            nonsense: "Bez sensu",
+            mistake: "Błąd",
+          };
+          return descriptions[code] || code;
+        }
+
+        // Function to update move evaluation info display
+        function updateMoveEvaluationInfo() {
+          if (!evaluatedMoveInfo) return;
+
+          // currentMoveIndex represents the move that was just played and we're evaluating
+          const moveNumber = Math.floor((currentMoveIndex - 1) / 2) + 1; // Game move number (1, 2, 3...)
+          const isWhiteMove = (currentMoveIndex - 1) % 2 === 0; // Check if it's white's move
+          const side = isWhiteMove ? "Białe" : "Czarne";
+          const actualMove = moves[currentMoveIndex - 1]; // The move that was just played
+
+          evaluatedMoveInfo.textContent = `${side} - ruch ${moveNumber}: ${actualMove}`;
+        }
+
+        // DEBUG FUNCTIONS - REMOVE BEFORE PRODUCTION
+        function updateDebugDisplay() {
+          if (!debugExpectedAnswer) return;
+
+          const moveNumber = currentMoveIndex; // Current move being evaluated
+          const isAnswerKeyAvailable = Object.keys(answerKey).length > 0;
+
+          if (isAnswerKeyAvailable && answerKey[moveNumber]) {
+            const expectedAnswers = Array.isArray(answerKey[moveNumber])
+              ? answerKey[moveNumber]
+              : [answerKey[moveNumber]]; // Ensure it's always an array
+
+            const expectedDescriptions = expectedAnswers
+              .map((answer) => getAnswerDescription(answer))
+              .join(", ");
+            const expectedCodes = expectedAnswers.join(", ");
+            debugExpectedAnswer.textContent = `${expectedDescriptions} (${expectedCodes})`;
+          } else {
+            debugExpectedAnswer.textContent = "Brak danych";
+          }
+        }
+        // END DEBUG FUNCTIONS
+
+        // Inicjalizacja
+        updateTimeLimit();
+        updateMessagesSettings();
+        disableStartButton("Wybierz oba pliki aby rozpocząć grę");
+        updatePGNStatus("Nie wybrano pliku PGN");
+        updateTXTStatus("Nie wybrano pliku TXT");
+        loadBestScores(); // Load saved best scores on page load
+        loadPlayerName(); // Load saved player name
+
+        // Welcome Screen Logic
+        const welcomeScreen = document.getElementById("welcome-screen");
+        const mainApp = document.getElementById("main-app");
+        const startAppBtn = document.getElementById("start-app-btn");
+
+        // Handle start button click
+        startAppBtn.addEventListener("click", function () {
+          // Add fade out effect
+          welcomeScreen.style.opacity = "0";
+
+          setTimeout(() => {
+            welcomeScreen.style.display = "none";
+            mainApp.style.display = "block";
+
+            // Add fade in effect for main app
+            mainApp.style.opacity = "0";
+            mainApp.style.transition = "opacity 0.5s ease-in";
+
+            setTimeout(() => {
+              mainApp.style.opacity = "1";
+            }, 50);
+          }, 500);
+        });
+
+        // Optional: Add keyboard support (Enter or Space to start)
+        document.addEventListener("keydown", function (e) {
+          if (
+            welcomeScreen.style.display !== "none" &&
+            (e.key === "Enter" || e.key === " ")
+          ) {
+            e.preventDefault();
+            startAppBtn.click();
+          }
+        });
+      </script>
+
+      <!-- Stopka -->
+      <div
+        style="
+          text-align: center;
+          margin-top: 40px;
+          padding: 20px;
+          background: #2d2d2d;
+          border-radius: 15px;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+          border: 1px solid #404040;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+          "
+        >
+          <div
+            style="
+              width: 30px;
+              height: 30px;
+              background: linear-gradient(135deg, #667eea, #764ba2);
+              border-radius: 8px;
+              padding: 4px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 100 100"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M15 75 L15 25 L25 25 L40 50 L55 25 L65 25 L65 75 L55 75 L55 40 L45 58 L35 58 L25 40 L25 75 Z"
+                fill="white"
+              />
+              <circle
+                cx="82"
+                cy="30"
+                r="12"
+                fill="none"
+                stroke="white"
+                stroke-width="3"
+              />
+              <path
+                d="M75 30 Q75 25 82 25 Q89 25 89 30"
+                fill="none"
+                stroke="white"
+                stroke-width="2"
+              />
+              <rect x="79" y="38" width="6" height="8" fill="white" rx="1" />
+              <path
+                d="M15 85 L25 65 L35 80 L45 65 L55 85 L45 85 L40 75 L30 75 L25 85 Z"
+                fill="white"
+              />
+            </svg>
+          </div>
+          <span style="font-weight: 600; color: #e0e0e0; font-size: 1.1em"
+            >Fundacja "Więcej Mądrości"</span
+          >
+        </div>
+        <div style="color: #b0b0b0; font-size: 0.9em; margin-bottom: 5px">
+          ♟️ Rozwijamy strategiczne myślenie przez szachy
+        </div>
+        <div style="color: #888; font-size: 0.8em">
+          © 2025 - Szachowa Zgadula v2.0
+        </div>
+      </div>
+    </div>
+    <!-- Close main-app div -->
+  </body>
+</html>
